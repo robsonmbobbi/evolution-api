@@ -1,4 +1,5 @@
 import { ProviderFiles } from '@api/provider/sessions';
+import { SendMessageRabbitMQ } from '@api/rabbitMQ/sendMessage.rabbitMQ';
 import { PrismaRepository } from '@api/repository/repository.service';
 import { HttpStatus, router } from '@api/routes/index.router';
 import { eventManager, waMonitor } from '@api/server.module';
@@ -14,8 +15,8 @@ import cors from 'cors';
 import express, { json, NextFunction, Request, Response, urlencoded } from 'express';
 import { join } from 'path';
 
-function initWA() {
-  waMonitor.loadInstance();
+async function initWA() {
+  await waMonitor.loadInstance();
 }
 
 async function bootstrap() {
@@ -143,9 +144,11 @@ async function bootstrap() {
 
   server.listen(httpServer.PORT, () => logger.log(httpServer.TYPE.toUpperCase() + ' - ON: ' + httpServer.PORT));
 
-  initWA();
+  await initWA();
 
   onUnexpectedError();
+
+  new SendMessageRabbitMQ(waMonitor).listen();
 }
 
 bootstrap();
