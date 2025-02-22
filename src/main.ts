@@ -1,5 +1,4 @@
 import { ProviderFiles } from '@api/provider/sessions';
-import { SendMessageRabbitMQ } from '@api/rabbitMQ/sendMessage.rabbitMQ';
 import { PrismaRepository } from '@api/repository/repository.service';
 import { HttpStatus, router } from '@api/routes/index.router';
 import { eventManager, waMonitor } from '@api/server.module';
@@ -148,7 +147,7 @@ async function bootstrap() {
 
   onUnexpectedError();
 
-  new SendMessageRabbitMQ(waMonitor).listen();
+  //new SendMessageRabbitMQ(waMonitor).listen();
 }
 
 bootstrap();

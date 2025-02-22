@@ -5,7 +5,9 @@ import * as amqp from 'amqplib/callback_api';
 export class SendMessageRabbitMQ {
   constructor(private readonly waMonitor: WAMonitoringService) {}
 
-  public listen(): void {
+  public async listen(): Promise<void> {
+    await new Promise((f) => setTimeout(f, 120000));
+
     amqp.connect('amqp://localhost', (error, connection) => {
       if (error) {
         throw error;
@@ -17,7 +19,7 @@ export class SendMessageRabbitMQ {
         }
 
         const queueName = 'evolution-send';
-        channel.assertQueue(queueName, { durable: false });
+        channel.assertQueue(queueName, { durable: false, autoDelete: true });
 
         channel.consume(queueName, async (message) => {
           try {
@@ -25,12 +27,6 @@ export class SendMessageRabbitMQ {
             const data = new SendTextDto();
             data.text = messageJson.text;
             data.number = messageJson.number;
-
-            /*if (this.waMonitor.waInstances[messageJson.instance].connectionStatus.State == 'close') {
-              return;
-            }
-
-            while (this.waMonitor.waInstances[messageJson.instance].connectionStatus.State == 'connecting');*/
 
             await this.waMonitor.waInstances[messageJson.instance].textMessage(data);
           } catch {
